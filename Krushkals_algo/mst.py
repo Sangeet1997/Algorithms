@@ -1,16 +1,82 @@
-def mst(arr): # array with each elements as [distance, x , y]
+class Disjoint_set:
+    def __init__(self):
+        self.p = {}
+        self.rank = {}
 
-    visited = set()
+    def find(self, x):
+
+        if x not in self.p:
+            return -1
+        
+        if self.p[x] != x:
+            self.p[x] = self.find(self.p[x])
+        
+        return self.p[x]
+
+    def union(self, x, y):
+        parent_x = self.find(x)
+        parent_y = self.find(y)
+
+        if parent_x == -1 and parent_y == -1:
+            self.p[x] = x
+            self.p[y] = x
+            self.rank[x] = 1
+            self.rank[y] = 0
+            return
+        
+        if parent_x == -1:
+            self.p[x] = parent_y
+            self.rank[x] = 0
+            return
+
+        if parent_y == -1:
+            self.p[y] = parent_x
+            self.rank[y] = 0
+            return
+        
+        if parent_x != parent_y:
+            if self.rank[parent_x] > self.rank[parent_y]:
+                self.p[parent_y] = parent_x
+                self.p[y] = parent_x
+
+            elif self.rank[parent_y] > self.rank[parent_x]:
+                self.p[parent_x] = parent_y
+                self.p[x] = parent_y
+            
+            else:
+                self.p[parent_y] = parent_x
+                self.p[y] = parent_x
+                self.rank[parent_x] += 1
+            
+                
+
+
+            
+
+
+def mst(arr):
+    """
+    Find Minimum Spanning Tree using Kruskal's algorithm.
+    
+    Args:
+        arr: List of edges [weight, vertex1, vertex2]
+    
+    Returns:
+        List of edges in the MST
+    """
+
+    dj_set = Disjoint_set()
     arr.sort()
     res = []
     
     for dist, x, y in arr:
-        if x in visited and y in visited:
-            continue
-        res.append([dist,x,y])
-        visited.add(x)
-        visited.add(y)
+        parent_x = dj_set.find(x)
+        parent_y = dj_set.find(y)
 
+        if parent_x == -1 or parent_y == -1 or parent_x != parent_y:
+            res.append([dist, x, y])
+            dj_set.union(x,y)
+        
     return res
 
 if __name__ == "__main__":
